@@ -33,17 +33,24 @@ class ApolloContainer:
     @property
     def host(self) -> str:
         """
-        Gets the ip address of the container
-
-        :type: str
+        Gets the IP address of the container.
+        Falls back to localhost if no IP is available.
         """
         assert self.is_running(), f'Container {self.name} is not running.'
-        ctn = docker.from_env().containers.get(self.name)
-        host = ctn.attrs['NetworkSettings']['IPAddress']
-        if host == '':
-            return 'localhost'
-        return ctn.attrs['NetworkSettings']['IPAddress']
-        # return ctn.attrs['NetworkSettings']['IPAddress']
+
+        client = docker.from_env()
+        ctn = client.containers.get(self.name)
+
+        networks = ctn.attrs.get('NetworkSettings', {}).get('Networks', {})
+
+        # Try to find a valid IP from any attached network
+        for net_name, net_data in networks.items():
+            ip = net_data.get('IPAddress')
+            if ip:
+                return ip
+
+        # Fallback (common when using host networking or no IP assigned)
+        return 'localhost'
 
     def is_running(self) -> bool:
         """
