@@ -1,6 +1,6 @@
 #!/bin/bash
 
-project_root=/data/d/mingfeicheng/Decictor
+project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 method_name_list='decictor avfuzzer samota behavexplor drivefuzzer deepcollision random random_delta'
 repeat_lst="1 2 3 4 5 6 7 8 9 10"
 run_hour=4
